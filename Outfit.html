@@ -95,76 +95,50 @@
     <div id="results-list"></div>
   </div>
 
- <script>
-  const outfits = [
-    { kategorie: 'Damen', outfit: 'Outfit 1' },
-    { kategorie: 'Damen', outfit: 'Outfit 2' },
-    { kategorie: 'Herren', outfit: 'Outfit 1' },
-    { kategorie: 'Herren', outfit: 'Outfit 2' }
-  ];
+  <script>
+    // Initialisiere Ergebnisstruktur im localStorage (falls leer)
+    const outfits = [
+      { kategorie: 'Damen', outfit: 'Outfit 1' },
+      { kategorie: 'Damen', outfit: 'Outfit 2' },
+      { kategorie: 'Herren', outfit: 'Outfit 1' },
+      { kategorie: 'Herren', outfit: 'Outfit 2' }
+    ];
 
-  function initializeVotes() {
-    if (!localStorage.getItem('votes')) {
-      const votes = {};
-      outfits.forEach(entry => {
-        const key = `${entry.kategorie}-${entry.outfit}`;
-        votes[key] = 0;
-      });
+    function initializeVotes() {
+      if (!localStorage.getItem('votes')) {
+        const votes = {};
+        outfits.forEach(entry => {
+          const key = `${entry.kategorie}-${entry.outfit}`;
+          votes[key] = 0;
+        });
+        localStorage.setItem('votes', JSON.stringify(votes));
+      }
+    }
+
+    function vote(kategorie, outfit) {
+      const key = `${kategorie}-${outfit}`;
+      let votes = JSON.parse(localStorage.getItem('votes'));
+      votes[key]++;
       localStorage.setItem('votes', JSON.stringify(votes));
-    }
-  }
-
-  function vote(kategorie, outfit) {
-    const votedKey = `voted-${kategorie}`;
-    
-    // Abbruch, wenn schon abgestimmt wurde
-    if (localStorage.getItem(votedKey)) {
-      alert(`Du hast bereits für die Kategorie "${kategorie}" abgestimmt.`);
-      return;
+      alert(`Danke für deine Stimme für ${kategorie} - ${outfit}!`);
+      showResults();
     }
 
-    const key = `${kategorie}-${outfit}`;
-    let votes = JSON.parse(localStorage.getItem('votes'));
-    votes[key]++;
-    localStorage.setItem('votes', JSON.stringify(votes));
+    function showResults() {
+      const resultsDiv = document.getElementById('results-list');
+      const votes = JSON.parse(localStorage.getItem('votes'));
+      let html = '<ul>';
+      Object.keys(votes).forEach(key => {
+        html += `<li><strong>${key}</strong>: ${votes[key]} Stimme(n)</li>`;
+      });
+      html += '</ul>';
+      resultsDiv.innerHTML = html;
+    }
 
-    // Merken, dass abgestimmt wurde
-    localStorage.setItem(votedKey, true);
-
-    alert(`Danke für deine Stimme für ${kategorie} - ${outfit}!`);
-    showResults();
-  }
-
-  function showResults() {
-    const resultsDiv = document.getElementById('results-list');
-    const votes = JSON.parse(localStorage.getItem('votes'));
-    let html = '<ul>';
-    Object.keys(votes).forEach(key => {
-      html += `<li><strong>${key}</strong>: ${votes[key]} Stimme(n)</li>`;
-    });
-    html += '</ul>';
-    resultsDiv.innerHTML = html;
-  }
-
-  initializeVotes();
-  showResults();
-
-function resetVotes() {
-  if (confirm("Möchtest du wirklich alle Stimmen zurücksetzen?")) {
-    localStorage.removeItem("votes");
-    localStorage.removeItem("voted-Damen");
-    localStorage.removeItem("voted-Herren");
+    // Seite initialisieren
     initializeVotes();
     showResults();
-    alert("Stimmen wurden zurückgesetzt.");
-  }
-}
-
-</script>
-<button onclick="resetVotes()" style="margin-top: 20px; background-color: red;">🔄 Stimmen zurücksetzen</button>
-
-
-
+  </script>
 
 </body>
 </html>
